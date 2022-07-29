@@ -1,8 +1,16 @@
-import requests
 import json
 import re
+from keyboards.reply.request_info import request_to_api
 
-def info_for_high_and_low_price(text:str, q, h):
+def info_for_high_and_low_price(data:str, q, h):
+    url = "https://hotels4.p.rapidapi.com/properties/list"
+    querystring = {"destinationId": "{}".format(data)}
+    headers = {
+        "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
+        "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57"
+    }
+    text = json.dumps(request_to_api(url, headers, querystring))
+
     pattern1 = r'(?<="label": ")[^"]+'
     find1 = re.findall(pattern1, text)
 
@@ -18,11 +26,15 @@ def info_for_high_and_low_price(text:str, q, h):
     pattern5 = r'(?<="name": ")[^"]+'
     find5 = re.findall(pattern5, text)
 
+    pattern6 = r'(?<="id": )[^,]+'
+    find6 = re.findall(pattern6, text)
+
     mainlabel = find1[0]
     newfind1 = []
     newfind2 = []
     newfind3 = []
     newfind4 = []
+    newfind5 = []
     index = 0
     for i in find1:
         if i == mainlabel:
@@ -30,6 +42,7 @@ def info_for_high_and_low_price(text:str, q, h):
             newfind2.append(find3[index])
             newfind3.append(find4[index])
             newfind4.append(find5[index])
+            newfind5.append(find6[index + 1])
         index += 1
         if index > 20:
             break
@@ -41,6 +54,10 @@ def info_for_high_and_low_price(text:str, q, h):
     rnewfind2 = []
     rnewfind3 = []
     rnewfind4 = []
+    rnewfind5 = []
+
+    if (len(newfind1) < q) or (len(newfind2) < q) or (len(newfind3) < q) or (len(newfind4) < q) or (len(newfind5) < q):
+        q = min(len(newfind1), len(newfind2), len(newfind3), len(newfind4), len(newfind5))
     if h =='h':
         forsortlist = sorted(set(sorted(doplist, reverse=True)), reverse=True)
     else:
@@ -53,11 +70,13 @@ def info_for_high_and_low_price(text:str, q, h):
                 rnewfind2.append(newfind2[index])
                 rnewfind3.append(newfind3[index])
                 rnewfind4.append(newfind4[index])
+                rnewfind5.append(newfind5[index])
             index += 1
 
     rnewfind1 = rnewfind1[:q]
     rnewfind2 = rnewfind2[:q]
     rnewfind3 = rnewfind3[:q]
     rnewfind4 = rnewfind4[:q]
+    rnewfind5 = rnewfind5[:q]
 
-    return mainlabel, rnewfind1, rnewfind2, rnewfind3, rnewfind4
+    return mainlabel, rnewfind1, rnewfind2, rnewfind3, rnewfind4, rnewfind5

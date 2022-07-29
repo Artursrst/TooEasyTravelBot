@@ -1,12 +1,7 @@
 from states.My_States import MyStates
-from keyboards.reply.request_info import request_to_api
 from loader import bot
-import json
-from database.appeals_to_bd import *
 from telebot.types import Message
 import re
-
-#Проверка попадают ли введённые числа в диапазоны
 
 @bot.message_handler(state=MyStates.date)
 def date_handler(message: Message) -> None:
@@ -18,17 +13,9 @@ def date_handler(message: Message) -> None:
                 bot.send_message(message.chat.id,
                                  'Дата введена в неправильном формате, введите дату в формате: день число от 1 до 31, месяц от 1 до 12, год от 2022 до 2025')
             else:
-
                 bot.set_state(message.from_user.id, MyStates.q_results, message.chat.id)
-
-                with db:
-                    dop = User.select().where(User.telegram_id == message.from_user.id).get()
-                    r_dop = S_request.get(
-                        S_request.user == User.select().where(User.telegram_id == message.from_user.id),
-                        S_request.number == len(dop.Requests))
-                    r_dop.date = message.text
-                    r_dop.save()
-
+                with bot.retrieve_data(message.from_user.id) as data:
+                    data['date'] = message.text
                 bot.send_message(message.chat.id,
                                  'Введите количество выводимых вариантов(не больше 10)')
         else:

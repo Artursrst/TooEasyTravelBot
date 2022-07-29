@@ -10,7 +10,14 @@ def request_to_api(url, headers, querystring):
     except Exception:
         print('Что-то пошло не так.')
 
-def caption_and_id_receiving(text:str, quantity:int = 8):
+def caption_and_id_receiving(data:str, quantity:int = 8):
+    url = "https://hotels4.p.rapidapi.com/locations/v2/search"
+    querystring = {"query": "{}".format(data), "locale": "en_US"}
+    headers = {
+        "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
+        "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57" }
+    text = json.dumps(request_to_api(url, headers, querystring))
+
     pattern1 = r'(?<="caption": ")[^"]+'
     find1 = re.findall(pattern1, text)
 
