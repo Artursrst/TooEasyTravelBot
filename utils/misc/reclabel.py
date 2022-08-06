@@ -1,8 +1,14 @@
 import re
 import json
-from keyboards.reply.request_info import request_to_api
+from utils.misc.request_info import request_to_api
 
-def get_mainlabel(data:str):
+def get_mainlabel(data:str) -> str:
+    '''
+    Функция для поиска названия достопримечательности от которой происходит отсчёт расстояния до отеля
+
+    :param data: id района
+    :return: название достопримечательности
+    '''
     url = "https://hotels4.p.rapidapi.com/properties/list"
     querystring = {"destinationId": "{}".format(data)}
     headers = {

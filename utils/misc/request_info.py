@@ -2,7 +2,15 @@ import requests
 import json
 import re
 
-def request_to_api(url, headers, querystring):
+def request_to_api(url:str, headers:dict, querystring:dict) -> json:
+    '''
+    Функиця для запросов к базы данных
+
+    :param url: адрес поиска
+    :param headers: запрос
+    :param querystring: словарь с хостом и ключом
+    :return: информация из базы данных
+    '''
     try:
         response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
         if response.status_code == requests.codes.ok:
@@ -10,7 +18,14 @@ def request_to_api(url, headers, querystring):
     except Exception:
         print('Что-то пошло не так.')
 
-def caption_and_id_receiving(data:str, quantity:int = 8):
+def caption_id(data:str, quantity:int = 8) -> list or None:
+    '''
+    Функция для получения информации с названиями районов и их ид из базы данных
+
+    :param data: город поиска
+    :param quantity: количество вариантов
+    :return: список с названиями и ид
+    '''
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"
     querystring = {"query": "{}".format(data), "locale": "en_US"}
     headers = {
@@ -41,36 +56,10 @@ def caption_and_id_receiving(data:str, quantity:int = 8):
     find = find1 + find2
     result = []
 
-    for i in range(len(find1)):
-        result.append([find[i], find[i + len(find1)]])
+    for i, val in enumerate(find1):
+        result.append([val, find[i + len(find1)]])
 
-    return result
+    if result:
+        return result
 
-def price_and_distance_receiving(text:str):
-    pattern1 = r'(?<="label": ")[^"]+'
-    find1 = re.findall(pattern1, text)
-
-    pattern2 = r'(?<="distance": ")[^( miles")]+'
-    find2 = re.findall(pattern2, text)
-
-    pattern3 = r'(?<="id": )[^,]+'
-    find3 = re.findall(pattern3, text)
-
-    pattern4 = r'(?<="current": ")[^"]+'
-    find4 = re.findall(pattern4, text)
-
-    mainlabel = find1[0]
-    newfind1 = []
-    newfind2 = []
-    newfind3 = []
-    index = 0
-    for i in find1:
-        if i == mainlabel:
-            newfind1.append(find2[index])
-            newfind2.append(find3[index + 1])
-            newfind3.append(find4[index])
-        index += 1
-        if index > 30:
-            break
-
-    return mainlabel, newfind1, newfind2, newfind3
+    return None

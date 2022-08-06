@@ -1,13 +1,19 @@
 from peewee import *
-import database
 
 db = SqliteDatabase('appeals.db')
 
 class BaseModel(Model):
+    '''Базовый класс базы данных'''
     class Meta:
         database = db
 
 class User(BaseModel):
+    '''
+    Базовый класс, хранящий данные о пользователе
+
+    name(str): полное имя пользователя
+    telegram_id(int): id пользователя
+    '''
     name = CharField(null=True)
     telegram_id = IntegerField(unique=True)
     class Meta:
@@ -15,9 +21,24 @@ class User(BaseModel):
         order_by = ('telegram_id')
 
 class S_request(Model):
+    '''
+    Класс, хранящий данные о запросах пользователя
+
+    user(User): информация о том какой пользователь совершин запрос
+    number(int): очередность запросов
+    city(str): информация о том в каком городе происходит поиск отеля
+    area(str): информация о том в каком районе происходит поиск отеля
+    command(str): информация о том по какой команде выполнен запрос
+    date(str): дата заселения
+    photos(int): выводить ли фотографии
+    q_results(int): количество вариантов отелей
+    r_date(str): дата запроса
+    distance(str): максимальная и минимальная дистанция до отеля
+    cost(str): максимальная и минимальная цена за ночь
+    '''
+
     user = ForeignKeyField(User, related_name='Requests')
     number = IntegerField(unique=True)
-    city = CharField(null=True)
     area = CharField(null=True)
     command = CharField(null=True)
     date = CharField(null=True)
@@ -29,7 +50,9 @@ class S_request(Model):
     class Meta:
         database = db
 
-def tables_creation():
+def tables_creation() -> None:
+    '''Функция для создание базы данных'''
+
     User.create_table()
     S_request.create_table()
 

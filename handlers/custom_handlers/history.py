@@ -2,55 +2,72 @@ from loader import bot
 from database.appeals_to_bd import *
 from telebot.types import Message
 import re
-from keyboards.reply.price_dist_lab_and_other_rec import info_for_high_and_low_price
-from keyboards.reply.photos_rec import photos_receiving
+from utils.misc.info import whole_info
+from utils.misc.photos_rec import photos_receiving
 
 @bot.message_handler(commands=['history'])
 def start(message: Message) -> None:
+    '''
+    Хендлер для команды вывода истории поиска пользователю, также осуществляет вывод информации пользователю
+
+    :param message: информация от пользователя
+    :return: None
+    '''
+
     with db:
         dop = User.select().where(User.telegram_id == message.from_user.id).get()
         bot.send_message(message.chat.id, 'Данные по вашим последним 10 запросам: ')
         for R in dop.Requests:
-            if R.command == '/highprice' or R.command == '/lowprice':
+            if R.command == '/highprice' or R.command == '/lowprice': #Получение информации из базы данных для команд /lowprice и /highprice
                 if R.command == '/highprice':
-                    label_info, distance_info, price_info, address_info, name_info, id = info_for_high_and_low_price(S_request.select().where(S_request.user == User.select().where(User.telegram_id == message.from_user.id),
-                                     S_request.number == len(dop.Requests)).get().area, int(S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
-                                             S_request.number==len(dop.Requests)).get().q_results), 'h')
+                    label_info, distance_info, price_info, address_info, name_info, id = whole_info(S_request.select().where(
+                        S_request.user == User.select().where(User.telegram_id == message.from_user.id),
+                        S_request.number == len(dop.Requests)).get().area, int(S_request.select().where(
+                        S_request.user==User.select().where(User.telegram_id == message.from_user.id),
+                        S_request.number==len(dop.Requests)).get().q_results), 'h')
 
                 elif R.command == '/lowprice':
-                    label_info, distance_info, price_info, address_info, name_info, id = info_for_high_and_low_price(S_request.select().where(S_request.user == User.select().where(User.telegram_id == message.from_user.id),
-                                     S_request.number == len(dop.Requests)).get().area, int(S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
-                                             S_request.number==len(dop.Requests)).get().q_results), 'l')
+                    label_info, distance_info, price_info, address_info, name_info, id = whole_info(S_request.select().where(
+                        S_request.user == User.select().where(User.telegram_id == message.from_user.id),
+                        S_request.number == len(dop.Requests)).get().area, int(S_request.select().where(
+                        S_request.user==User.select().where(User.telegram_id == message.from_user.id),
+                        S_request.number==len(dop.Requests)).get().q_results), 'l')
 
-                for q in range(len(distance_info)):
-                    bot.send_message(message.chat.id, 'Название отеля: {}\nАдрес отеля: {}\nРасстояние до {}: {} миль\nЦена за день: {}$\n'.format(name_info[q], address_info[q], label_info, distance_info[q], price_info[q]))
-                    if S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
-                                                 S_request.number==len(dop.Requests)).get().q_results == 0:
+                for q in range(len(distance_info)): #Вывод информации пользователю
+                    bot.send_message(message.chat.id, 'Название отеля: {}\n'
+                                                      'Адрес отеля: {}\n'
+                                                      'Расстояние до {}: {} миль\n'
+                                                      'Цена за день: {}$\n'.format(
+                                                       name_info[q], address_info[q],
+                                                       label_info, distance_info[q],
+                                                       price_info[q]))
+                    if S_request.select().where(
+                            S_request.user==User.select().where(User.telegram_id == message.from_user.id),
+                            S_request.number==len(dop.Requests)).get().q_results == 0:
                         continue
-                    photos = photos_receiving(int(id[q]), int(S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
-                                                 S_request.number==len(dop.Requests)).get().photos))
-                    for e in range(len(photos)):
-                        try:
-                            bot.send_photo(message.chat.id, '{}'.format(photos[e]))
-                        except Exception:
-                            print(Exception)
+                    photos = photos_receiving(int(id[q]), int(S_request.select().where(S_request.user==User.select().where(
+                        User.telegram_id == message.from_user.id),
+                        S_request.number==len(dop.Requests)).get().photos))
+                    for e in photos:
+                        bot.send_photo(message.chat.id, '{}'.format(e))
 
-            elif R.command == '/bestdeal':
+
+            elif R.command == '/bestdeal': #Получение информации из базы данных для команды /bestdeal
                 pattern = r';'
                 text_w_d = re.split(pattern, S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
                                              S_request.number==len(dop.Requests)).get().distance)
                 text_w_c = re.split(pattern, S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
                                              S_request.number==len(dop.Requests)).get().cost)
-                label_info, distance_info, price_info, address_info, name_info, id = info_for_high_and_low_price(
+                label_info, distance_info, price_info, address_info, name_info, id = whole_info(
                     S_request.select().where(
                         S_request.user == User.select().where(User.telegram_id == message.from_user.id),
                         S_request.number == len(dop.Requests)).get().area, 19, 'l')
                 r_distance_info, r_price_info, r_address_info, r_name_info, r_id = [], [], [], [], []
                 bot.set_state(message.from_user.id, None, message.chat.id)
 
-                for i in range(len(distance_info)):
-                    if (float(text_w_d[0]) < float(distance_info[i]) < float(text_w_d[1])) and (float(text_w_c[0]) < float(price_info[i][1:]) < float(text_w_c[1])):
-                        r_distance_info.append(distance_info[i])
+                for i, val in enumerate(distance_info):
+                    if (float(text_w_d[0]) < float(val) < float(text_w_d[1])) and (float(text_w_c[0]) < float(price_info[i][1:]) < float(text_w_c[1])):
+                        r_distance_info.append(val)
                         r_price_info.append(price_info[i])
                         r_address_info.append(address_info[i])
                         r_name_info.append(name_info[i])
@@ -61,10 +78,20 @@ def start(message: Message) -> None:
                 else:
                     q_r = int(S_request.select().where(S_request.user==User.select().where(User.telegram_id == message.from_user.id),
                                              S_request.number==len(dop.Requests)).get().q_results)
-                    for q in range(len(r_distance_info)):
+
+                    if len(r_distance_info) < q_r:
                         bot.send_message(message.chat.id,
-                                         'Название отеля: {}\nАдрес отеля: {}\nРасстояние до {}: {}  миль\nЦена за день: {}\n'.format(
-                                             r_name_info[q], r_address_info[q], label_info, r_distance_info[q],
+                                         'В нашей базе данных всего {} '
+                                         'отелей удовлетворяющих вашему запросу'.format(
+                                          len(r_distance_info)))
+
+                    for q, val in enumerate(r_distance_info): #Вывод информации пользователю
+                        bot.send_message(message.chat.id,
+                                         'Название отеля: {}\n'
+                                         'Адрес отеля: {}\n'
+                                         'Расстояние до {}: {}  миль\n'
+                                         'Цена за день: {}\n'.format(
+                                             r_name_info[q], r_address_info[q], label_info, val,
                                              r_price_info[q]))
                         if S_request.select().where(
                                 S_request.user == User.select().where(User.telegram_id == message.from_user.id),
@@ -73,15 +100,8 @@ def start(message: Message) -> None:
                         photos = photos_receiving(int(r_id[q]), int(S_request.select().where(
                             S_request.user == User.select().where(User.telegram_id == message.from_user.id),
                             S_request.number == len(dop.Requests)).get().photos))
-                        for e in range(len(photos)):
-                            try:
-                                print(photos[e])
-                                bot.send_photo(message.chat.id, '{}'.format(photos[e]))
-                            except Exception:
-                                print(Exception)
-                                print(photos[e])
+                        for e in photos:
+                            bot.send_photo(message.chat.id, '{}'.format(e))
 
-                    if len(r_distance_info) < q_r:
-                        bot.send_message(message.chat.id,
-                                         'В нашей базе данных всего {} отелей удовлетворяющих вашему запросу'.format(
-                                             len(r_distance_info)))
+
+

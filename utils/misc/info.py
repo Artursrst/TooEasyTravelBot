@@ -1,14 +1,33 @@
 import json
 import re
-from keyboards.reply.request_info import request_to_api
+from utils.misc.request_info import request_to_api
 
-def info_for_high_and_low_price(data:str, q, h):
+def whole_info(data:str, q:int, h:str) -> list:
+    '''
+    Функция для получения основной информации из базы данных
+
+    :param data: район поиска
+    :param q: количество выводимых вариантов
+    :param h: /highprice или /lowprice
+
+    :return:
+    :param mainlabel: достопримечательность для отсчёта расстояния
+    :param rnewfind1: список расстояний до достопримечательности
+    :param rnewfind2: список стоимостей за ночь
+    :param rnewfind3: список адресов
+    :param rnewfind4: список названий отелей
+    :param rnewfind5: список ид отелей
+    '''
+
     url = "https://hotels4.p.rapidapi.com/properties/list"
     querystring = {"destinationId": "{}".format(data)}
     headers = {
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
         "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57"
     }
+    with open('holets.json', 'w') as file:
+        json.dump(request_to_api(url, headers, querystring), file, indent=4)
+
     text = json.dumps(request_to_api(url, headers, querystring))
 
     pattern1 = r'(?<="label": ")[^"]+'
