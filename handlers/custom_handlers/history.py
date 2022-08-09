@@ -4,6 +4,7 @@ from telebot.types import Message
 import re
 from utils.misc.info import whole_info
 from utils.misc.photos_rec import photos_receiving
+import requests
 
 @bot.message_handler(commands=['history'])
 def start(message: Message) -> None:
@@ -33,13 +34,14 @@ def start(message: Message) -> None:
                         S_request.user==User.select().where(User.telegram_id == message.from_user.id),
                         S_request.number==len(dop.Requests)).get().q_results), 'l')
 
-                for q in range(len(distance_info)): #Вывод информации пользователю
+                for q, val in enumerate(distance_info): #Вывод информации пользователю
                     bot.send_message(message.chat.id, 'Название отеля: {}\n'
+                                                      'Ссылка на отель: hotels.com/ho{}\n'
                                                       'Адрес отеля: {}\n'
                                                       'Расстояние до {}: {} миль\n'
                                                       'Цена за день: {}$\n'.format(
-                                                       name_info[q], address_info[q],
-                                                       label_info, distance_info[q],
+                                                       name_info[q], id[q], address_info[q],
+                                                       label_info, val,
                                                        price_info[q]))
                     if S_request.select().where(
                             S_request.user==User.select().where(User.telegram_id == message.from_user.id),
@@ -49,7 +51,8 @@ def start(message: Message) -> None:
                         User.telegram_id == message.from_user.id),
                         S_request.number==len(dop.Requests)).get().photos))
                     for e in photos:
-                        bot.send_photo(message.chat.id, '{}'.format(e))
+                        response = requests.get(e)
+                        bot.send_photo(message.chat.id, response.content)
 
 
             elif R.command == '/bestdeal': #Получение информации из базы данных для команды /bestdeal
@@ -88,10 +91,11 @@ def start(message: Message) -> None:
                     for q, val in enumerate(r_distance_info): #Вывод информации пользователю
                         bot.send_message(message.chat.id,
                                          'Название отеля: {}\n'
+                                         'Ссылка на отель: hotels.com/ho{}\n'
                                          'Адрес отеля: {}\n'
                                          'Расстояние до {}: {}  миль\n'
                                          'Цена за день: {}\n'.format(
-                                             r_name_info[q], r_address_info[q], label_info, val,
+                                             r_name_info[q], id[q], r_address_info[q], label_info, val,
                                              r_price_info[q]))
                         if S_request.select().where(
                                 S_request.user == User.select().where(User.telegram_id == message.from_user.id),
@@ -101,7 +105,8 @@ def start(message: Message) -> None:
                             S_request.user == User.select().where(User.telegram_id == message.from_user.id),
                             S_request.number == len(dop.Requests)).get().photos))
                         for e in photos:
-                            bot.send_photo(message.chat.id, '{}'.format(e))
+                            response = requests.get(e)
+                            bot.send_photo(message.chat.id, response.content)
 
 
 

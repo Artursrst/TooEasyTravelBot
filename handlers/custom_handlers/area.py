@@ -1,7 +1,7 @@
 from loader import bot
 from telebot.types import CallbackQuery
 from states.My_States import MyStates
-from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP
+from utils.misc.calendar import create_calendar
 
 @bot.callback_query_handler(lambda y: 'ar' in y.data)
 def area_handler(callback_query: CallbackQuery) -> None:
@@ -18,8 +18,6 @@ def area_handler(callback_query: CallbackQuery) -> None:
         data['area'] = callback_query.data[2:]
 
     bot.set_state(callback_query.from_user.id, MyStates.date)
-    calendar, step = DetailedTelegramCalendar().build()
-    bot.send_message(callback_query.from_user.id, 'Выберите дату когда планируете заселиться ')
-    bot.send_message(callback_query.from_user.id,
-                     f"Select {LSTEP[step]}",
-                     reply_markup=calendar)
+
+    calendar, step = create_calendar(callback_query)
+    bot.send_message(callback_query.from_user.id, f"Укажите {step} заезда", reply_markup=calendar)

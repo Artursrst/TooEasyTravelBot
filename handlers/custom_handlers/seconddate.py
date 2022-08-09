@@ -1,9 +1,9 @@
 from states.My_States import MyStates
 from loader import bot
 from telebot.types import CallbackQuery
-from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP
+from utils.misc.calendar import create_calendar
 
-@bot.callback_query_handler(func=DetailedTelegramCalendar.func(), state=MyStates.sdate)
+@bot.callback_query_handler(state=MyStates.sdate, func=None)
 def sdate_handler(callback_query: CallbackQuery):
     '''
     Хендлер для повторного получения информации о том когда пользователь планируется заселиться в отель
@@ -12,20 +12,20 @@ def sdate_handler(callback_query: CallbackQuery):
     :return: None
     '''
 
-    result, key, step = DetailedTelegramCalendar().process(callback_query.data)
-    if not result and key:
-        bot.edit_message_text(f"Select {LSTEP[step]}",
-                              callback_query.message.chat.id,
+    result, keyboard, step = create_calendar(callback_query, is_process=True)
+
+    if not result and keyboard:
+        bot.edit_message_text(f'Укажите {step} заезда',
+                              callback_query.from_user.id,
                               callback_query.message.message_id,
-                              reply_markup=key)
+                              reply_markup=keyboard)
     elif result:
         with bot.retrieve_data(callback_query.from_user.id) as data:
             data['date'] = result
-
         bot.edit_message_text(f"Вы выбрали {result}",
                               callback_query.message.chat.id,
                               callback_query.message.message_id)
-        bot.set_state(callback_query.from_user.id, MyStates.photos, callback_query.message.chat.id)
+
+        bot.set_state(callback_query.from_user.id, MyStates.q_results, callback_query.message.chat.id)
         bot.send_message(callback_query.message.chat.id,
-                         'Введите количество выводимых фотографий(не больше 4) '
-                         'или 0 если не хотите смотреть фотографии')
+                         'Введите количество выводимых вариантов(не больше 10)')

@@ -40,6 +40,3 @@ def dbwrite(userid:int, username:str, command:str, q_results:str, area:str, phot
                 number=i, command=command, r_date=datetime.now(), q_results=q_results,
                 area=area, photos=photos)
             break
-
-def dbread():
-    pass

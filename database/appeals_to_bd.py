@@ -52,7 +52,6 @@ class S_request(Model):
 
 def tables_creation() -> None:
     '''Функция для создание базы данных'''
-
     User.create_table()
     S_request.create_table()
 

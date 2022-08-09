@@ -6,6 +6,7 @@ from utils.misc.reclabel import get_mainlabel
 from utils.misc.info import whole_info
 from utils.misc.photos_rec import photos_receiving
 from utils.misc.dboperations import dbwrite
+import requests
 
 @bot.message_handler(state=MyStates.cost)
 def cost_handler(message: Message) -> None:
@@ -68,18 +69,31 @@ def cost_handler(message: Message) -> None:
                 r_id = r_id[:q_r]
                 for q, val in enumerate(r_distance_info):
                     bot.send_message(message.chat.id,
-                                     'Название отеля: {}\nАдрес отеля: {}\nРасстояние до {}: {} миль\nЦена за день: {}$\n'.format(
-                                         r_name_info[q], r_address_info[q], label_info, val, r_price_info[q]))
+                                     'Название отеля: {}\n'
+                                     'Ссылка на отель: hotels.com/ho{}\n'
+                                     'Адрес отеля: {}\n'
+                                     'Расстояние до {}: {} миль\n'
+                                     'Цена за день: {}$\n'.format(
+                                         r_name_info[q], id[q],
+                                         r_address_info[q], label_info,
+                                         val, r_price_info[q]))
                     if data['photos'] == 0:
                         continue
                     photos = photos_receiving(int(r_id[q]), int(data['photos']))
                     for e in photos:
-                        bot.send_photo(message.chat.id, '{}'.format(e))
+                        response = requests.get(e)
+                        bot.send_photo(message.chat.id, response.content)
             else:
                 for q, val in enumerate(r_distance_info):
                     bot.send_message(message.chat.id,
-                                     'Название отеля: {}\nАдрес отеля: {}\nРасстояние до {}: {} миль\nЦена за день: {}$\n'.format(
-                                         r_name_info[q], r_address_info[q], label_info, val, r_price_info[q]))
+                                     'Название отеля: {}\n'
+                                     'Ссылка на отель: hotels.com/ho{}\n'
+                                     'Адрес отеля: {}\n'
+                                     'Расстояние до {}: {} миль\n'
+                                     'Цена за день: {}$\n'.format(
+                                         r_name_info[q], id[q],
+                                         r_address_info[q], label_info,
+                                         val, r_price_info[q]))
 
                     if data['photos'] == 0:
                         continue

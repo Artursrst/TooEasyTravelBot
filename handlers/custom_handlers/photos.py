@@ -4,6 +4,7 @@ from utils.misc.reclabel import get_mainlabel
 from utils.misc.photos_rec import photos_receiving
 from utils.misc.dboperations import dbwrite
 from loader import bot
+import requests
 from telebot.types import Message
 
 @bot.message_handler(state=MyStates.photos)
@@ -40,16 +41,18 @@ def q_results_handler(message: Message) -> None:
                                  'Отели по вашему запросу: ')
                 for q, val in enumerate(distance_info): #Вывод информации пользователю
                     bot.send_message(message.chat.id, 'Название отеля: {}\n'
+                                                      'Ссылка на отель: hotels.com/ho{}\n'
                                                       'Адрес отеля: {}\n'
                                                       'Расстояние до {}:  {} миль\n'
                                                       'Цена за день: {}\n'.format(
-                                                       name_info[q], address_info[q], label_info,
+                                                       name_info[q], id[q], address_info[q], label_info,
                                                        val, price_info[q]))
                     if data['photos'] == 0:
                         continue
                     photos = photos_receiving(int(id[q]), int(data['photos']))
                     for e in photos:
-                        bot.send_photo(message.chat.id, '{}'.format(e))
+                        response = requests.get(e)
+                        bot.send_photo(message.chat.id, response.content)
                 #Запись информации в базу данных
                 dbwrite(message.from_user.id, message.from_user.full_name, data['command'], data['q_results'], data['area'], data['photos'])
 

@@ -22,11 +22,13 @@ def whole_info(data:str, q:int, h:str) -> list:
     url = "https://hotels4.p.rapidapi.com/properties/list"
     querystring = {"destinationId": "{}".format(data)}
     headers = {
+        "X-RapidAPI-Key": "3a79ba62e0msh37989a720c1c081p108357jsnbf5d74c17a9a",
+        "X-RapidAPI-Host": "hotels4.p.rapidapi.com"
+    }
+    '''headers = {
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
         "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57"
-    }
-    with open('holets.json', 'w') as file:
-        json.dump(request_to_api(url, headers, querystring), file, indent=4)
+    }'''
 
     text = json.dumps(request_to_api(url, headers, querystring))
 

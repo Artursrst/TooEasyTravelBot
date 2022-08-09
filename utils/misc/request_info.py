@@ -29,8 +29,12 @@ def caption_id(data:str, quantity:int = 8) -> list or None:
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"
     querystring = {"query": "{}".format(data), "locale": "en_US"}
     headers = {
+        "X-RapidAPI-Key": "3a79ba62e0msh37989a720c1c081p108357jsnbf5d74c17a9a",
+        "X-RapidAPI-Host": "hotels4.p.rapidapi.com"
+    }
+    '''headers = {
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
-        "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57" }
+        "X-RapidAPI-Key": "c040a13279msh33671d36277e40fp190802jsn81aad8fc9c57" }'''
     text = json.dumps(request_to_api(url, headers, querystring))
 
     pattern1 = r'(?<="caption": ")[^"]+'
