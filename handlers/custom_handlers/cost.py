@@ -61,6 +61,29 @@ def cost_handler(message: Message) -> None:
             if len(r_distance_info) < q_r:
                 bot.send_message(message.chat.id, 'В нашей базе данных всего {} '
                                                   'отелей удовлетворяющих вашему запросу'.format(len(r_distance_info)))
+                q_r = len(r_distance_info)
+                r_name_info = r_name_info[:q_r]
+                r_address_info = r_address_info[:q_r]
+                r_distance_info = r_distance_info[:q_r]
+                r_price_info = r_price_info[:q_r]
+                r_id = r_id[:q_r]
+                for q, val in enumerate(r_distance_info):
+                    bot.send_message(message.chat.id,
+                                     'Название отеля: {}\n'
+                                     'Ссылка на отель: hotels.com/ho{}\n'
+                                     'Адрес отеля: {}\n'
+                                     'Расстояние до {}: {} миль\n'
+                                     'Цена за день: {}$\n'.format(
+                                         r_name_info[q], id[q],
+                                         r_address_info[q], label_info,
+                                         val, r_price_info[q]))
+                    if data['photos'] == 0:
+                        continue
+                    photos = photos_receiving(int(r_id[q]), int(data['photos']))
+                    for e in photos:
+                        response = requests.get(e)
+                        bot.send_photo(message.chat.id, response.content)
+
             elif len(r_distance_info) > q_r:
                 r_name_info = r_name_info[:q_r]
                 r_address_info = r_address_info[:q_r]
