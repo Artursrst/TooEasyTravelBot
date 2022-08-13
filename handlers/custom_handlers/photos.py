@@ -17,16 +17,16 @@ def q_results_handler(message: Message) -> None:
     :return: None
     '''
 
-    if message.text.isdigit() and 0 <= len(message.text) <= 4: #Проверкак на соответствие введённых пользователем данных заданным критериям
+    if message.text.isdigit() and 0 <= len(message.text) <= 4: #Проверка на соответствие введённых пользователем данных заданным критериям
         with bot.retrieve_data(message.from_user.id) as data:
-            data['photos'] = message.text
+            data['photos'] = int(message.text)
 
             if data['command'] == "/bestdeal":
                 mlabel = get_mainlabel(data['area'])
                 bot.set_state(message.from_user.id, MyStates.distance, message.chat.id)
                 bot.send_message(message.chat.id,
                                  'Введите минимальное и максимальное расстояние от отеля до {} '
-                                 'в милях через ";" (Например: 0.3 ; 2.5)'.format(mlabel))
+                                 'в милях через ";" (Например: 0.3;2.5)'.format(mlabel))
             else:
                 bot.set_state(message.from_user.id, None, message.chat.id)
 
@@ -40,13 +40,19 @@ def q_results_handler(message: Message) -> None:
                 bot.send_message(message.chat.id,
                                  'Отели по вашему запросу: ')
                 for q, val in enumerate(distance_info): #Вывод информации пользователю
+                    dz, mz, yz = data['date'].day, data['date'].month, data['date'].year
+                    dv, mv, yv = data['sdate'].day, data['sdate'].month, data['sdate'].year
+                    wprice = ((dv - dz) * float(price_info[q][1:])) + \
+                             ((mv - mz) * 31 * float(price_info[q][1:])) + \
+                             ((yv - yz) * 365 * float(price_info[q][1:]))
                     bot.send_message(message.chat.id, 'Название отеля: {}\n'
                                                       'Ссылка на отель: hotels.com/ho{}\n'
                                                       'Адрес отеля: {}\n'
                                                       'Расстояние до {}:  {} миль\n'
-                                                      'Цена за день: {}\n'.format(
+                                                      'Цена за день: {}\n'
+                                                      'Цена за всё время проживания: ${}'.format(
                                                        name_info[q], id[q], address_info[q], label_info,
-                                                       val, price_info[q]))
+                                                       val, price_info[q], wprice))
                     if data['photos'] == 0:
                         continue
                     photos = photos_receiving(int(id[q]), int(data['photos']))
@@ -58,4 +64,5 @@ def q_results_handler(message: Message) -> None:
 
     else:
         bot.send_message(message.chat.id,
-                         'Введите пожалуйста 1 число от 1 до 4, или 0 если не хотите выводить фотографии')
+                         'Неправильно введены данные, введите число от 1 до 4,'
+                         ' или 0 если не хотите выводить фотографии')

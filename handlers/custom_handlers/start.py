@@ -11,7 +11,7 @@ def start(message: Message) -> None:
     :return: None
     '''
 
-    bot.send_message(message.from_user.id, 'Введите название города, в котором хотите'
+    bot.send_message(message.from_user.id, 'Введите название города, в котором хотите '
                                            'найти отель, маленькими латинскими буквами,'
                                            ' разделяя слова пробелом (Пример: new york)')
     bot.set_state(message.from_user.id, MyStates.city)

@@ -1,6 +1,6 @@
 import re
 import json
-from utils.misc.request_info import request_to_api
+from utils.misc.api_request import request_to_api
 
 def get_mainlabel(data:str) -> str:
     '''
@@ -24,6 +24,9 @@ def get_mainlabel(data:str) -> str:
     pattern1 = r'(?<="label": ")[^"]+'
     find1 = re.findall(pattern1, text)
 
-    mainlabel = find1[0]
+    try:
+        mainlabel = find1[0]
+    except IndexError:
+        mainlabel = 'Center'
 
     return mainlabel

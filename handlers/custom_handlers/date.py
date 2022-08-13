@@ -28,6 +28,6 @@ def date_handler(callback_query: CallbackQuery):
         bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
 
         calendar, step = create_calendar(callback_query)
-        bot.send_message(callback_query.from_user.id, f"Повторите {step} заезда", reply_markup=calendar)
+        bot.send_message(callback_query.from_user.id, f"Укажите {step} отъезда", reply_markup=calendar)
 
         bot.set_state(callback_query.from_user.id, MyStates.sdate, callback_query.message.chat.id)

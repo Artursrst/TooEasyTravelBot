@@ -1,6 +1,6 @@
 from loader import bot
 from telebot.types import Message
-from utils.misc.request_info import caption_id
+from utils.misc.api_request import caption_id
 from utils.misc.area_choice import area_markup
 from states.My_States import MyStates
 from utils.misc.city_check import city_ch
@@ -16,6 +16,7 @@ def city_handler(message: Message) -> None:
     '''
 
     if city_ch(message.text):
+        bot.set_state(message.from_user.id, None)
         areas = caption_id(message.text)
         if areas:
             bot.send_message(message.from_user.id, 'Выберете район в которым хотите найти отель:',
@@ -26,7 +27,6 @@ def city_handler(message: Message) -> None:
             bot.send_message(message.from_user.id, 'К сожалению в нашей базе данных'
                                                    'отсутствуют данных об отелях этого '
                                                    'города')
-            bot.set_state(message.from_user.id, None)
 
     else:
         bot.send_message(message.from_user.id, 'Город введёт в неправильном формате)')

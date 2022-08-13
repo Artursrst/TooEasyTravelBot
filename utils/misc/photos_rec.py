@@ -1,4 +1,4 @@
-from utils.misc.request_info import request_to_api
+from utils.misc.api_request import request_to_api
 
 def photos_receiving(data:int, quantity:int = 0) -> list or None:
     '''

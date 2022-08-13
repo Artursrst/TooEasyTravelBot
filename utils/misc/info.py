@@ -1,6 +1,6 @@
 import json
 import re
-from utils.misc.request_info import request_to_api
+from utils.misc.api_request import request_to_api
 
 def whole_info(data:str, q:int, h:str) -> list:
     '''
